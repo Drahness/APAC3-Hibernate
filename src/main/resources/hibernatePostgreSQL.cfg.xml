@@ -1,0 +1,59 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<!DOCTYPE hibernate-configuration SYSTEM "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+   <session-factory>
+   
+      <property name = "hibernate.dialect">
+         org.hibernate.dialect.PostgreSQLDialect
+      </property>
+      
+      <property name = "hibernate.connection.driver_class">
+         org.postgresql.Driver
+      </property>
+      
+      <!-- Assume test is the database name -->
+      
+      <property name = "hibernate.connection.url">
+      	jdbc:postgresql://localhost/TinkersDatabase
+      </property>
+      
+      <property name = "hibernate.connection.username">
+         javaConnector
+      </property>
+      
+      <property name = "hibernate.connection.password">
+      	HibernateWillCome
+      </property>
+      <property name="hibernate.hbm2ddl.auto">
+      		create
+      </property>
+      <property name = "hibernate.show_sql">true</property>
+      <!-- List of XML mapping files -->
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.EntityMaterial"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.EntityModifier"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.EntityPartType"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.EntityTrait"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.EntityMod"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.EntityBowCore"/>
+     <!-- La anotacion Embebbed, no necesita ser mapeada-->
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.EntityToolCore"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.EntityToolPart"/>
+      
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.stats.EntityExtra"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.stats.EntityHandle"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.stats.EntityBatteryCell"/> 
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.stats.EntityBowHead"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.stats.EntityCore"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.stats.EntityFletching"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.stats.EntityHandle"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.stats.EntityHead"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.stats.EntityBowString"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.stats.EntityPlate"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.stats.EntityTrim"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.stats.EntityLaserMedium"/>
+      <mapping class = "com.catalanrenegado.tinkdatabase.entities.stats.EntityShaft"/>
+      
+      
+      
+   </session-factory>
+</hibernate-configuration>
