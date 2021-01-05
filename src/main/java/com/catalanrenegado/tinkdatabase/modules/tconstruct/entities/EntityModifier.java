@@ -1,93 +1,87 @@
 package com.catalanrenegado.tinkdatabase.modules.tconstruct.entities;
 
-import java.util.Objects;
+import com.catalanrenegado.tinkdatabase.Leer;
+import com.catalanrenegado.tinkdatabase.Utils;
+import com.catalanrenegado.tinkdatabase.database.DatabaseConnection;
+import com.catalanrenegado.tinkdatabase.interfaces.IEntity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import com.catalanrenegado.tinkdatabase.interfaces.IEntity;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 @Entity
 @Table(name = "MODIFIERS")
 
 public class EntityModifier implements IEntity {
-	private static final long serialVersionUID = -126203684757928687L;
-	@Id
-	@Column(name = "ID")
-	private String id;
-	@Column
-	private boolean isTrait;
+    private static final long serialVersionUID = -126203684757928687L;
+    @Id
+    @Column(name = "ID")
+    private String id;
+    @Column
+    private boolean isTrait;
 
-	@SuppressWarnings("unused")
-	public EntityModifier() {}
-/*
-	public EntityModifier(IModifier modifier) {
-		super(modifier);
-		this.id = Finder.getIdentifier(modifier);
-		this.isTrait = modifier instanceof AbstractTrait;
-	}
-*/
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		EntityModifier other = (EntityModifier) obj;
-		return Objects.equals(other.id, this.id);
-	}
+    @SuppressWarnings("unused")
+    public EntityModifier() {
+    }
 
-	@Override
-	public String getId() {
-		return id;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        EntityModifier other = (EntityModifier) obj;
+        return Objects.equals(other.id, this.id);
+    }
 
-	@Override
-	public boolean needToBePersisted() {
-		return true;
-	}
+    @Override
+    public String getId() {
+        return id;
+    }
 
-	/*
-        @Override
-        public IModule getModModule() {
-            return ModuleTConstruct.getInstance();
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.id);
+    }
+
+    @Override
+    public String toString() {
+        return id ;
+    }
+
+    @Override
+    public Map<String, String> getMap(boolean cascade) {
+        Map<String,String> map = new HashMap<>();
+        map.put("Id",id);
+        map.put("Is trait",String.valueOf(isTrait));
+        return map;
+    }
+
+    @Override
+    public void changeAttributes(DatabaseConnection dbconn, boolean cascade) {
+        if (this.id == null) {
+            boolean existenceCheck;
+            String identifier;
+            do { // TODO The identity cannot be changed in runtime.
+                identifier = Leer.leerTexto(String.format("<TinkersExtractor#%s> Identificador: ", this.getClass().getSimpleName()));
+                if (identifier.equals("") && this.id != null) {
+                    identifier = this.id;
+                }
+                //EntityModifier check = dbconn.get(this.getClass(),identifier);
+                //existenceCheck = check != null && !this.equals(check);
+                existenceCheck = !Utils.identifierExistsInSession(dbconn, this, this.id, identifier);
+                if (existenceCheck) {
+                    System.out.printf("<TinkersExtractor#%s> Identificador ya asignado a un mod, prueba con otro.%n", this.getClass().getSimpleName());
+                }
+            } while (existenceCheck);
+            this.id = identifier;
         }
-    */
-	@Override
-	public int hashCode() {
-		return Objects.hash(this.id);
-	}
-
-	@Override
-	public String toString() {
-		return "EntityModifier [id=" + id + ", isTrait=" + isTrait + "]";
-	}
-/*
-	@Override
-	protected IModifier resolveRepresentativeInstance() {
-		for(IModifier modifier : Utils.getModifiers()) {
-			if(Finder.getIdentifier(modifier).equals(this.id)) {
-				return modifier;
-			}
-		}
-		throw new RuntimeException("Failed to resolve RepresentativeInstance ID: "+this.getId());
-	}
-*/
-/*	@Override
-	public void merge(IEntity o) {
-		if(o instanceof EntityModifier) {
-			EntityModifier instance = (EntityModifier) o;
-			this.isTrait = instance.isTrait;
-		}
-	}
-
-	@Override
-	public boolean canBeMerged() {
-		return true;
-	}
-*/
+        this.isTrait = Leer.leerBoolean(String.format("<TinkersExtractor#%s> Este modificador (%s), es un trait? S/N", this.getClass().getSimpleName(), this.id));
+    }
 }

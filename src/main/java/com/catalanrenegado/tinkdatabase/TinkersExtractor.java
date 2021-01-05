@@ -2,193 +2,95 @@ package com.catalanrenegado.tinkdatabase;
 
 import com.catalanrenegado.tinkdatabase.database.DatabaseConnection;
 import com.catalanrenegado.tinkdatabase.identity.ItemID;
+import com.catalanrenegado.tinkdatabase.interfaces.IEntity;
 import com.catalanrenegado.tinkdatabase.modules.tconstruct.entities.*;
-import com.catalanrenegado.tinkdatabase.modules.tconstruct.entities.stats.EntityBowHead;
-import com.catalanrenegado.tinkdatabase.modules.tconstruct.entities.stats.EntityFletching;
-import com.catalanrenegado.tinkdatabase.modules.tconstruct.entities.stats.EntityHandle;
-import com.catalanrenegado.tinkdatabase.relations.PartTypes_Materials;
+import com.catalanrenegado.tinkdatabase.modules.tconstruct.entities.stats.*;
 import org.hibernate.Session;
-import org.hibernate.dialect.Database;
+
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TinkersExtractor { // NO_UCD (unused code)
-	public static final String MODID = "tinkdatabase";
-	public static final String NAME = "Tinkers Database";
-	public static final String VERSION = "0.9";
+    public static final String MODID = "tinkdatabase";
+    public static final String NAME = "Tinkers Database";
+    public static final String VERSION = "0.9";
 
-	public static void main(String[] args) {
-		DatabaseConnection conn = new DatabaseConnection.Builder().setProperty("hibernate.hbm2ddl.auto", "update")
-				.setProperty("hibernate.connection.url",
-						"jdbc:mysql://localhost/tinkerdata?useLegacyDatetimeCode=false&serverTimezone=UTC")
-				.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver")
-				.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL57InnoDBDialect")
-				.setProperty("hibernate.connection.username", "root")
-				.setProperty("hibernate.connection.password", "root")
-				.addAnnotatedClass(EntityAtlasSprite.class)
-				.addAnnotatedClass(SpriteTConstructBase.class)
-				.addAnnotatedClass(EntityMaterial.class)
-				.addAnnotatedClass(EntityMod.class)
-				.addAnnotatedClass(EntityToolCore.class)
-				.addAnnotatedClass(EntityBowCore.class)
-				.addAnnotatedClass(EntityBowHead.class)
-				.addAnnotatedClass(EntityHandle.class)
-				.addAnnotatedClass(EntityFletching.class)
-				.addAnnotatedClass(EntityComponent.class)
-				.addAnnotatedClass(ItemID.class)
-				.addAnnotatedClass(EntityAtlasSprite.class)
-				.addAnnotatedClass(PartTypes_Materials.class)
+    public static void main(String[] args) throws InterruptedException {
+        String defaultPassword = "1234";
+        String defaultUsername = "root";
+        String defaultConnectionUrl = "jdbc:mysql://localhost/tinkerdata?useLegacyDatetimeCode=false&serverTimezone=UTC";
+        String defaultDriver = "com.mysql.jdbc.Driver";
+        String defaultDialect = "org.hibernate.dialect.MySQL57InnoDBDialect";
+        String password = Leer.leerTexto(String.format("Pon una password, actual (%s):", defaultPassword));
+        String username = Leer.leerTexto(String.format("Pon un usuario, actual (%s):", defaultUsername));
+        String connectionUrl = Leer.leerTexto(String.format("Pon una url de conexion, actual (%s):", defaultConnectionUrl));
+        String driver = Leer.leerTexto(String.format("Pon un driver, actual (%s):", defaultDriver));
+        String dialect = Leer.leerTexto(String.format("Pon un dialecto, actual (%s):", defaultDialect));
+        if(password.equals("")) {
+            password = defaultPassword;
+        }
+        if(username.equals("")) {
+            username = defaultUsername;
+        }
+        if(connectionUrl.equals("")) {
+            connectionUrl = defaultConnectionUrl;
+        }
+        if(driver.equals("")) {
+            driver = defaultDriver;
+        }
+        if(dialect.equals("")) {
+            dialect = defaultDialect;
+        }
 
-				.build();
-		Session s = conn.getSession();
-		s.beginTransaction();
-		s.createQuery("FROM AtlasSprites");
-	}
-	/*@EventHandler
-	public void preInit(FMLPreInitializationEvent event) {
-		MODULE_HUB.add(ModuleTConstruct.getInstance());
-		MODULE_HUB.add(ModulePlusTic.getInstance());
-		MODULE_HUB.add(ModuleConArmory.getInstance());
-		proxy.init(event);
-		proxy.extract(event);
-	}
+        Logger globalLogger = Logger.getLogger("global");
+        Handler[] handlers = globalLogger.getHandlers();
+        for(Handler handler : handlers) {
+            globalLogger.removeHandler(handler);
+        }
+        Set<Class<? extends IEntity>> typeCasting = new HashSet<>();
+        typeCasting.add(EntityAtlasSprite.class);
+        typeCasting.add(SpriteTConstructBase.class);
+        typeCasting.add(EntityMaterial.class);
+        typeCasting.add(EntityMod.class);
+        typeCasting.add(EntityToolCore.class);
+        typeCasting.add(EntityHead.class);
+        typeCasting.add(EntityShaft.class);
+        typeCasting.add(EntityBowString.class);
+        typeCasting.add(EntityExtra.class);
+        typeCasting.add(EntityBowCore.class);
+        typeCasting.add(EntityBowHead.class);
+        typeCasting.add(EntityHandle.class);
+        typeCasting.add(EntityFletching.class);
+        typeCasting.add(EntityComponent.class);
+        typeCasting.add(ItemID.class);
+        typeCasting.add(PartTypes_Materials.class);
+        typeCasting.add(EntityPart.class);
+        typeCasting.add(EntityModifier.class);
+        typeCasting.add(EntityPartType.class);
+        typeCasting.add(EntityTrait.class);
+        DatabaseConnection.Builder builder = new DatabaseConnection.Builder()
+                .setProperty("hibernate.connection.url",
+                        connectionUrl)
+                .setProperty("hibernate.connection.driver_class", driver)
+                .setProperty("hibernate.dialect", dialect)
+                .setProperty("hibernate.connection.username", username)
+                .setProperty("hibernate.connection.password", password);
 
-	@EventHandler
-	public void init(FMLInitializationEvent event) {
-		connection = proxy.openFactory();
-		proxy.extract(event);
-	}
+        // builder.addAnnotatedClasses(typeCasting); no compila.
+        for (Class<? extends IEntity> klass : typeCasting) {
+            builder.addAnnotatedClass(klass);
+            // Joan Gerard si ves esto explicame porque de esta forma si y de la otra no.
+        }
 
-	@EventHandler
-	public void postinit(FMLPostInitializationEvent event) {
-		proxy.extract(event);
-		proxy.createInstances(event);*/
-		/*log.info(Pattern.getTextureIdentifier(TinkerTools.arrowHead));
-		log.info(Pattern.getTextureIdentifier(TinkerTools.arrowShaft));
-		log.info(Pattern.getTextureIdentifier(TinkerTools.axeHead));*/
-		/*
-		
-		
-		for (Item iterable_element : TinkerRegistry.getPatternItems()) {
-			log.info(iterable_element);
-			//log.info(Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(iterable_element.getRegistryName().toString())); // null
-		}
-		for (Item iterable_element : TinkerRegistry.getCastItems()) {
-			log.info(iterable_element);
-			//log.info(Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(iterable_element.getRegistryName().toString())); // null
-		}
-		for (ToolCore iterable_element : TinkerRegistry.getToolForgeCrafting()) {
-			log.info(iterable_element);
-			//log.info(Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(iterable_element.getRegistryName().toString())); // null
-			log.info(Pattern.getTextureIdentifier(iterable_element));
-		}
-		*/
-		//log.info(Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(""));
-		
-		//log.info(Instancer.getEntityNullable(AbstractCore.class, new EntityBowCore(TinkerRangedWeapons.crossBow)));
-		// funciona tal cual
-		
-
-		/*
-		Collection<Material> heads = TinkerRegistry.getAllMaterialsWithStats(MaterialTypes.HEAD);
-		Collection<Material> extra =  TinkerRegistry.getAllMaterialsWithStats(MaterialTypes.EXTRA);
-		Collection<Material> handle = TinkerRegistry.getAllMaterialsWithStats(MaterialTypes.HANDLE);
-		
-		Random r = new Random();
-		
-		List<Material> matList = Lists.newArrayList();
-		
-		int i,
-		counter = 0;
-		
-		i = r.nextInt(heads.size());
-		for (Material material : heads) {
-			if(counter == i) {
-				matList.add(material);
-				counter = 0;
-			}
-			else {
-				counter++;
-			}
-		}
-		
-		i = r.nextInt(extra.size());
-		for (Material material : extra) {
-			if(counter == i) {
-				matList.add(material);
-				counter = 0;
-			}
-			else {
-				counter++;
-			}
-		}
-		
-		i = r.nextInt(handle.size());
-		for (Material material : handle) {
-			if(counter == i) {
-				matList.add(material);
-				counter = 0;
-			}
-			else {
-				counter++;
-			}
-		}
-		
-		Writer.writeToFile(matList.toString(), "tagTestings");
-		
-		NBTTagCompound toolNBT = ((LongSword) TinkerMeleeWeapons.longSword).buildTagData(matList).get();
-		
-		//toolNBT.
-		
-		Writer.writeToFile(toolNBT.toString(), "tagTestings");
-		log.info(matList);
-		log.info(toolNBT);
-		TinkerRegistry.getToolForgeCrafting();
-*/
-	/*}
-	private static ItemStack test;
-	@EventHandler
-	public void serverStarting(FMLServerStartingEvent e) {
-		Random r = new Random();
-		List<Material> mats = Utils.getAllMaterials();
-		int cobaltI = 0;
-		for (int i = 0; i < mats.size(); i++) {
-			if(mats.get(i).identifier.equalsIgnoreCase("cobalt")) {
-				cobaltI = i;
-				break;
-			}
-		}
-		List<Material> cobalt = Lists.newArrayList();
-		cobalt.add(mats.get(cobaltI));
-		cobalt.add(mats.get(cobaltI));
-		cobalt.add(mats.get(cobaltI));
-		cobalt.add(mats.get(cobaltI));
-		ItemStack test = TinkerMeleeWeapons.cleaver.buildItem(cobalt);
-		log.info(ToolHelper.getActualAttack(test));
-		log.info(test.getTagCompound());
-		log.info(ToolHelper.getActualDamage(test, null));
-	}
-	@EventHandler
-	public void serverStarted(FMLServerStartedEvent e) {
-		Random r = new Random();
-		List<Material> mats = Utils.getAllMaterials();
-		int cobaltI = 0;
-		for (int i = 0; i < mats.size(); i++) {
-			if(mats.get(i).identifier.equalsIgnoreCase("cobalt")) {
-				cobaltI = i;
-				break;
-			}
-		}
-		List<Material> cobalt = Lists.newArrayList();
-		cobalt.add(mats.get(cobaltI));
-		cobalt.add(mats.get(cobaltI));
-		cobalt.add(mats.get(cobaltI));
-		cobalt.add(mats.get(cobaltI));
-		ItemStack test = TinkerMeleeWeapons.cleaver.buildItem(cobalt);
-		log.info(ToolHelper.getActualAttack(test));
-		log.info(test.getTagCompound());
-		log.info(ToolHelper.getActualDamage(test, null));
-		log.info(test + " itemstack");
-		log.info(Minecraft.getMinecraft().player + " is null?");
-		log.info(ToolHelper.getActualDamage(test, Minecraft.getMinecraft().player));
-		//SharedMonsterAttributes.ATTACK_DAMAGE
-	}*/
+        DatabaseConnection conn = builder.build();
+        Session s = conn.getSession();
+        Thread.sleep(1000);
+        MaintainerShell m = new MaintainerShell(conn, typeCasting);
+        m.startShell();
+    }
 }

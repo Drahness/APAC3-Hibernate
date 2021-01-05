@@ -1,10 +1,7 @@
 package com.catalanrenegado.tinkdatabase.utils;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Optional;
+
 /*
 import com.google.common.collect.Lists;
 
@@ -21,41 +18,41 @@ import slimeknights.tconstruct.library.tools.IToolPart;
 import slimeknights.tconstruct.library.tools.Pattern;
 */
 public class TextureUtils { // NO UCD (Unused code)
-	/*public static boolean belongsToToolPart(ResourceLocation location) {
-		for (IToolPart toolpart : TinkerRegistry.getToolParts()) {
-			if (!(toolpart instanceof Item)) {
-				continue; // WHY?!
-			}
-			try {
-				Optional<ResourceLocation> storedResourceLocation = MaterialModelLoader
-						.getToolPartModelLocation(toolpart);
-				if (storedResourceLocation.isPresent()) {
-					ResourceLocation stored = storedResourceLocation.get();
-					ResourceLocation modelLocation = new ResourceLocation(stored.getResourceDomain(),
-							"item/" + stored.getResourcePath());
-					IModel partModel = ModelLoaderRegistry.getModel(modelLocation);
+    /*public static boolean belongsToToolPart(ResourceLocation location) {
+        for (IToolPart toolpart : TinkerRegistry.getToolParts()) {
+            if (!(toolpart instanceof Item)) {
+                continue; // WHY?!
+            }
+            try {
+                Optional<ResourceLocation> storedResourceLocation = MaterialModelLoader
+                        .getToolPartModelLocation(toolpart);
+                if (storedResourceLocation.isPresent()) {
+                    ResourceLocation stored = storedResourceLocation.get();
+                    ResourceLocation modelLocation = new ResourceLocation(stored.getResourceDomain(),
+                            "item/" + stored.getResourcePath());
+                    IModel partModel = ModelLoaderRegistry.getModel(modelLocation);
 
-					// the actual texture of the part
-					ResourceLocation baseTexture = partModel.getTextures().iterator().next();
-					if (baseTexture.toString().equals(location.toString())) {
-						return true;
-					}
-				}
-			} catch (Exception e) {
-				return false;
-			}
-		}
-		return false;
-	}
+                    // the actual texture of the part
+                    ResourceLocation baseTexture = partModel.getTextures().iterator().next();
+                    if (baseTexture.toString().equals(location.toString())) {
+                        return true;
+                    }
+                }
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return false;
+    }
 */
-	public static BufferedImage getBufferedImage(int height, int width, int[] bytes) {
-		BufferedImage bf = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		for (int i = 0; i < bytes.length; i++) {
-			bf.setRGB(i % width, i / height, bytes[i]);
-		}
+    public static BufferedImage getBufferedImage(int height, int width, int[] bytes) {
+        BufferedImage bf = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        for (int i = 0; i < bytes.length; i++) {
+            bf.setRGB(i % width, i / height, bytes[i]);
+        }
 
-		return bf;
-	}
+        return bf;
+    }
 /*
 	public static BufferedImage getBufferedImage(ResourceLocation rsloc) throws IOException {// NO UCD (Unused code) //
 																								// NO_UCD (unused code)

@@ -1,108 +1,119 @@
 package com.catalanrenegado.tinkdatabase.modules.tconstruct.entities.stats;
 
-import java.io.Serializable;
-import java.util.Objects;
+import com.catalanrenegado.tinkdatabase.Leer;
+import com.catalanrenegado.tinkdatabase.database.DatabaseConnection;
+import com.catalanrenegado.tinkdatabase.modules.tconstruct.entities.EntityMaterialStat;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-
-import com.catalanrenegado.tinkdatabase.abstractions.EntityMaterialStat;
+import java.util.Map;
+import java.util.Objects;
 
 @Entity
 @Table(name = "PARTTYPE_HEADS")
 public class EntityHead extends EntityMaterialStat {
-	// la id esta en la clase padre MATERIALSTAT
-	private static final long serialVersionUID = 862144679511585785L;
-	private int durability;
-	private float attack;
-	private float miningSpeed;
-	private int harvestLevel;
+    // la id esta en la clase padre MATERIALSTAT
+    private static final long serialVersionUID = 862144679511585785L;
+    private int durability;
+    private float attack;
+    private float miningSpeed;
+    private int harvestLevel;
 
-	public EntityHead() {
-		super();
-		this.durability = 0;
-		this.attack = 0;
-		this.miningSpeed = 0;
-		this.harvestLevel = 0;
-	}
-/*
-	public EntityHead(Material mat) {
-		super(mat, TConstructPartTypes.HEAD);
-		this.durability = getMaterialStats().durability;
-		this.attack = getMaterialStats().attack;
-		this.miningSpeed = getMaterialStats().miningspeed;
-		this.harvestLevel = getMaterialStats().harvestLevel;
-	}
-*/
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		EntityHead other = (EntityHead) obj;
-		return Objects.equals(other.attack, this.attack) && Objects.equals(other.durability, this.durability)
-				&& Objects.equals(other.harvestLevel, this.harvestLevel)
-				&& Objects.equals(other.miningSpeed, this.miningSpeed) && super.equals(other);
-	}
+    public EntityHead() {
+        super("head");
+    }
 
-	@Column
-	public float getAttack() {
-		return attack;
-	}
+    @Override
+    public Map<String, String> getMap(boolean cascade) {
+        Map<String, String> map = super.getMap(cascade);
+        map.put("Attack",String.valueOf(attack));
+        map.put("Durability",String.valueOf(durability));
+        map.put("Mining Speed",String.valueOf(miningSpeed));
+        map.put("Harvest Level",String.valueOf(harvestLevel));
 
-	@Column
-	public int getDurability() {
-		return durability;
-	}
+        return map;
+    }
 
-	@Column
-	public int getHarvestLevel() {
-		return harvestLevel;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        EntityHead other = (EntityHead) obj;
+        return Objects.equals(other.attack, this.attack) && Objects.equals(other.durability, this.durability)
+                && Objects.equals(other.harvestLevel, this.harvestLevel)
+                && Objects.equals(other.miningSpeed, this.miningSpeed) && super.equals(other);
+    }
 
-	@Column
-	public float getMiningSpeed() {
-		return miningSpeed;
-	}
+    @Column
+    public float getAttack() {
+        return attack;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(attack, durability, harvestLevel, miningSpeed);
-	}
+    public void setAttack(float attack) {
+        this.attack = attack;
+    }
 
-	public void setAttack(float attack) {
-		this.attack = attack;
-	}
+    @Column
+    public int getDurability() {
+        return durability;
+    }
 
-	public void setDurability(int durability) {
-		this.durability = durability;
-	}
+    public void setDurability(int durability) {
+        this.durability = durability;
+    }
 
-	public void setHarvestLevel(int harvestLevel) {
-		this.harvestLevel = harvestLevel;
-	}
+    @Column
+    public int getHarvestLevel() {
+        return harvestLevel;
+    }
 
-	public void setMiningSpeed(float miningSpeed) {
-		this.miningSpeed = miningSpeed;
-	}
+    public void setHarvestLevel(int harvestLevel) {
+        this.harvestLevel = harvestLevel;
+    }
 
-	@Override
-	public String toString() {
-		return "EntityHead [toString()=" + super.toString() + ", durability=" + durability + ", attack=" + attack
-				+ ", miningSpeed=" + miningSpeed + ", harvestLevel=" + harvestLevel + "]";
-	}
-	/*@Override
-	public void merge(IEntity o) {
-		if(o instanceof EntityHead) {
-			EntityHead instance = (EntityHead) o;
-			this.durability = instance.durability;
-			this.attack = instance.attack;
-			this.miningSpeed = instance.miningSpeed;
-			this.harvestLevel = instance.harvestLevel;
-		}
-	}*/
+    @Column
+    public float getMiningSpeed() {
+        return miningSpeed;
+    }
+
+    public void setMiningSpeed(float miningSpeed) {
+        this.miningSpeed = miningSpeed;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(attack, durability, harvestLevel, miningSpeed);
+    }
+
+    @Override
+    public void changeAttributes(DatabaseConnection dbconn, boolean cascade) {
+        super.changeAttributes(dbconn, cascade);
+        int durability = Leer.leerEntero(String.format("<TinkersExtractor#%s>Inserta el modificador de durabilidad, actual (%d): ",this.getClass().getSimpleName(), this.durability));
+        if (durability == 0.0f && this.durability != 0.0f) {
+            durability = this.durability;
+        }
+        float attack = Leer.leerFloat(String.format("<TinkersExtractor#%s>Inserta el modificador de durabilidad, actual (%f): ",this.getClass().getSimpleName(), this.attack));
+        if (attack == 0&& this.attack != 0) {
+            attack = this.attack;
+        }
+
+        float miningSpeed = Leer.leerFloat(String.format("<TinkersExtractor#%s>Inserta el modificador de durabilidad, actual (%f): ",this.getClass().getSimpleName(), this.miningSpeed));
+        if (miningSpeed == 0.0f && this.miningSpeed != 0.0f) {
+            miningSpeed = this.miningSpeed;
+        }
+
+        int harvestLevel = Leer.leerEntero(String.format("<TinkersExtractor#%s>Inserta el modificador de durabilidad, actual (%d): ",this.getClass().getSimpleName(), this.harvestLevel));
+        if (harvestLevel == 0.0f && this.harvestLevel != 0.0f) {
+            harvestLevel = this.harvestLevel;
+        }
+        this.durability = durability;
+        this.miningSpeed = miningSpeed;
+        this.harvestLevel = harvestLevel;
+        this.attack = attack;
+    }
 }
